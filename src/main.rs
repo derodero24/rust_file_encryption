@@ -18,8 +18,8 @@ fn main() -> Result<(), anyhow::Error> {
     println!("Encrypting 100.bin to 100.enc");
     encrypt_small_file("100.bin", "100.enc", &small_file_key, &small_file_nonce)?;
 
-    println!("Decrypting 100.enc to 100.dec");
-    decrypt_small_file("100.enc", "100.dec", &small_file_key, &small_file_nonce)?;
+    println!("Decrypting 100.enc to 100.dec.bin");
+    decrypt_small_file("100.enc", "100.dec.bin", &small_file_key, &small_file_nonce)?;
 
     let mut large_file_key = [0u8; 32];
     let mut large_file_nonce = [0u8; 19];
@@ -29,8 +29,13 @@ fn main() -> Result<(), anyhow::Error> {
     println!("Encrypting 2048.bin to 2048.enc");
     encrypt_large_file("2048.bin", "2048.enc", &large_file_key, &large_file_nonce)?;
 
-    println!("Decrypting 2048.enc to 2048.dec");
-    decrypt_large_file("2048.enc", "2048.dec", &large_file_key, &large_file_nonce)?;
+    println!("Decrypting 2048.enc to 2048.dec.bin");
+    decrypt_large_file(
+        "2048.enc",
+        "2048.dec.bin",
+        &large_file_key,
+        &large_file_nonce,
+    )?;
 
     // Original files
     // println!("Encrypting AKAI.vrm to AKAI.enc");
@@ -45,20 +50,35 @@ fn main() -> Result<(), anyhow::Error> {
     // )?;
 
     println!("Encrypting sample.txt to sample.enc");
-    encrypt_large_file(
+    encrypt_small_file(
         "sample.txt",
         "sample.enc",
-        &large_file_key,
-        &large_file_nonce,
+        &small_file_key,
+        &small_file_nonce,
     )?;
 
     println!("Decrypting sample.enc to sample.dec.vrm");
-    decrypt_large_file(
+    decrypt_small_file(
         "sample.enc",
         "sample.dec.txt",
-        &large_file_key,
-        &large_file_nonce,
+        &small_file_key,
+        &small_file_nonce,
     )?;
+    // println!("Encrypting sample.txt to sample.enc");
+    // encrypt_large_file(
+    //     "sample.txt",
+    //     "sample.enc",
+    //     &large_file_key,
+    //     &large_file_nonce,
+    // )?;
+
+    // println!("Decrypting sample.enc to sample.dec.vrm");
+    // decrypt_large_file(
+    //     "sample.enc",
+    //     "sample.dec.txt",
+    //     &large_file_key,
+    //     &large_file_nonce,
+    // )?;
 
     Ok(())
 }

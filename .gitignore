@@ -1,4 +1,4 @@
 target
-*.enc*
-*.dec*
+*.enc
+*.dec.*
 .vrm

@@ -2,8 +2,8 @@
 
 ```shell
 $ cargo run
-$ shasum -a 256 100.bin 100.encrypted 100.decrypted
-$ shasum -a 256 2048.bin 2048.encrypted 2048.decrypted
+$ shasum -a 256 100.bin 100.enc 100.dec.bin
+$ shasum -a 256 2048.bin 2048.enc 2048.dec.bin
 ```
 
 ```bash
