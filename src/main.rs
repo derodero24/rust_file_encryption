@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use chacha20poly1305::{
-    aead::{stream, Aead, NewAead},
-    XChaCha20Poly1305,
+    aead::{stream, Aead},
+    KeyInit, XChaCha20Poly1305,
 };
 use rand::{rngs::OsRng, RngCore};
 use std::{
