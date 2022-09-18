@@ -15,21 +15,28 @@ fn main() -> Result<(), anyhow::Error> {
     OsRng.fill_bytes(&mut small_file_key);
     OsRng.fill_bytes(&mut small_file_nonce);
 
-    println!("Encrypting 100.bin to 100.enc");
     encrypt_small_file("100.bin", "100.enc", &small_file_key, &small_file_nonce)?;
-
-    println!("Decrypting 100.enc to 100.dec.bin");
     decrypt_small_file("100.enc", "100.dec.bin", &small_file_key, &small_file_nonce)?;
+
+    encrypt_small_file(
+        "sample.txt",
+        "sample.enc",
+        &small_file_key,
+        &small_file_nonce,
+    )?;
+    decrypt_small_file(
+        "sample.enc",
+        "sample.dec.txt",
+        &small_file_key,
+        &small_file_nonce,
+    )?;
 
     let mut large_file_key = [0u8; 32];
     let mut large_file_nonce = [0u8; 19];
     OsRng.fill_bytes(&mut large_file_key);
     OsRng.fill_bytes(&mut large_file_nonce);
 
-    println!("Encrypting 2048.bin to 2048.enc");
     encrypt_large_file("2048.bin", "2048.enc", &large_file_key, &large_file_nonce)?;
-
-    println!("Decrypting 2048.enc to 2048.dec.bin");
     decrypt_large_file(
         "2048.enc",
         "2048.dec.bin",
@@ -37,45 +44,10 @@ fn main() -> Result<(), anyhow::Error> {
         &large_file_nonce,
     )?;
 
-    // Original files
-    // println!("Encrypting AKAI.vrm to AKAI.enc");
     // encrypt_large_file("AKAI.vrm", "AKAI.enc", &large_file_key, &large_file_nonce)?;
-
-    // println!("Decrypting AKAI.enc to AKAI.dec.vrm");
     // decrypt_large_file(
     //     "AKAI.enc",
     //     "AKAI.dec.vrm",
-    //     &large_file_key,
-    //     &large_file_nonce,
-    // )?;
-
-    println!("Encrypting sample.txt to sample.enc");
-    encrypt_small_file(
-        "sample.txt",
-        "sample.enc",
-        &small_file_key,
-        &small_file_nonce,
-    )?;
-
-    println!("Decrypting sample.enc to sample.dec.vrm");
-    decrypt_small_file(
-        "sample.enc",
-        "sample.dec.txt",
-        &small_file_key,
-        &small_file_nonce,
-    )?;
-    // println!("Encrypting sample.txt to sample.enc");
-    // encrypt_large_file(
-    //     "sample.txt",
-    //     "sample.enc",
-    //     &large_file_key,
-    //     &large_file_nonce,
-    // )?;
-
-    // println!("Decrypting sample.enc to sample.dec.vrm");
-    // decrypt_large_file(
-    //     "sample.enc",
-    //     "sample.dec.txt",
     //     &large_file_key,
     //     &large_file_nonce,
     // )?;
@@ -84,57 +56,60 @@ fn main() -> Result<(), anyhow::Error> {
 }
 
 fn encrypt_small_file(
-    filepath: &str,
-    dist: &str,
+    src_filepath: &str,
+    dist_filepath: &str,
     key: &[u8; 32],
     nonce: &[u8; 24],
 ) -> Result<(), anyhow::Error> {
+    println!("Encrypting {} to {}", src_filepath, dist_filepath);
     let cipher = XChaCha20Poly1305::new(key.into());
 
-    let file_data = fs::read(filepath)?;
+    let file_data = fs::read(src_filepath)?;
 
     let encrypted_file = cipher
         .encrypt(nonce.into(), file_data.as_ref())
         .map_err(|err| anyhow!("Encrypting small file: {}", err))?;
 
-    fs::write(&dist, encrypted_file)?;
+    fs::write(&dist_filepath, encrypted_file)?;
 
     Ok(())
 }
 
 fn decrypt_small_file(
-    encrypted_file_path: &str,
-    dist: &str,
+    src_filepath: &str,
+    dist_filepath: &str,
     key: &[u8; 32],
     nonce: &[u8; 24],
 ) -> Result<(), anyhow::Error> {
+    println!("Decrypting {} to {}", src_filepath, dist_filepath);
     let cipher = XChaCha20Poly1305::new(key.into());
 
-    let file_data = fs::read(encrypted_file_path)?;
+    let file_data = fs::read(src_filepath)?;
 
     let decrypted_file = cipher
         .decrypt(nonce.into(), file_data.as_ref())
         .map_err(|err| anyhow!("Decrypting small file: {}", err))?;
 
-    fs::write(&dist, decrypted_file)?;
+    fs::write(&dist_filepath, decrypted_file)?;
 
     Ok(())
 }
 
 fn encrypt_large_file(
-    source_file_path: &str,
-    dist_file_path: &str,
+    src_filepath: &str,
+    dist_filepath: &str,
     key: &[u8; 32],
     nonce: &[u8; 19],
 ) -> Result<(), anyhow::Error> {
+    println!("Encrypting {} to {}", src_filepath, dist_filepath);
     let aead = XChaCha20Poly1305::new(key.as_ref().into());
     let mut stream_encryptor = stream::EncryptorBE32::from_aead(aead, nonce.as_ref().into());
 
     const BUFFER_LEN: usize = 500;
     let mut buffer = [0u8; BUFFER_LEN];
 
-    let mut source_file = File::open(source_file_path)?;
-    let mut dist_file = File::create(dist_file_path)?;
+    let mut source_file = File::open(src_filepath)?;
+    let mut dist_file = File::create(dist_filepath)?;
 
     loop {
         let read_count = source_file.read(&mut buffer)?;
@@ -157,19 +132,20 @@ fn encrypt_large_file(
 }
 
 fn decrypt_large_file(
-    encrypted_file_path: &str,
-    dist: &str,
+    src_filepath: &str,
+    dist_filepath: &str,
     key: &[u8; 32],
     nonce: &[u8; 19],
 ) -> Result<(), anyhow::Error> {
+    println!("Decrypting {} to {}", src_filepath, dist_filepath);
     let aead = XChaCha20Poly1305::new(key.as_ref().into());
     let mut stream_decryptor = stream::DecryptorBE32::from_aead(aead, nonce.as_ref().into());
 
     const BUFFER_LEN: usize = 500 + 16;
     let mut buffer = [0u8; BUFFER_LEN];
 
-    let mut encrypted_file = File::open(encrypted_file_path)?;
-    let mut dist_file = File::create(dist)?;
+    let mut encrypted_file = File::open(src_filepath)?;
+    let mut dist_file = File::create(dist_filepath)?;
 
     loop {
         let read_count = encrypted_file.read(&mut buffer)?;
