@@ -33,16 +33,16 @@ fn main() -> Result<(), anyhow::Error> {
     decrypt_large_file("2048.enc", "2048.dec", &large_file_key, &large_file_nonce)?;
 
     // Original files
-    println!("Encrypting AKAI.vrm to AKAI.enc");
-    encrypt_large_file("AKAI.vrm", "AKAI.enc", &large_file_key, &large_file_nonce)?;
+    // println!("Encrypting AKAI.vrm to AKAI.enc");
+    // encrypt_large_file("AKAI.vrm", "AKAI.enc", &large_file_key, &large_file_nonce)?;
 
-    println!("Decrypting AKAI.enc to AKAI.dec.vrm");
-    decrypt_large_file(
-        "AKAI.enc",
-        "AKAI.dec.vrm",
-        &large_file_key,
-        &large_file_nonce,
-    )?;
+    // println!("Decrypting AKAI.enc to AKAI.dec.vrm");
+    // decrypt_large_file(
+    //     "AKAI.enc",
+    //     "AKAI.dec.vrm",
+    //     &large_file_key,
+    //     &large_file_nonce,
+    // )?;
 
     println!("Encrypting sample.txt to sample.enc");
     encrypt_large_file(

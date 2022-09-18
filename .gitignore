@@ -1,4 +1,4 @@
-*.enc
-*.dec
-*.vrm
-*.txt
+target
+*.enc*
+*.dec*
+.vrm
